@@ -3,11 +3,13 @@ import numpy as np
 import argparse
 import scipy.optimize
 
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
 def load_dataset(filename):
     x_train, y_train = load_svmlight_file(filename)
     x_train_dense = x_train.todense()
-    y_train_matrix = np.matrix(y_train).transpose()
-    return x_train_dense, y_train_matrix
+    return x_train_dense, y_train
 
 def get_subset(num_samples, x_train, y_train):
     if num_samples > len(y_train):
@@ -21,11 +23,9 @@ def get_cost(w, x, y):
     pass
 
 def get_gradient(w, x, y):
-    # TODO
-    pass
+    return np.mean(sigmoid(np.multiply (-y * w * x, -y * x)))
 
 def train(x_train, y_train):
-    # TODO:
     w0 = np.random.rand(x_train.shape[0], 1)
     return scipy.optimize.fmin_bfgs(get_cost, w0, get_gradient, args=(x_train, y_train))
 
