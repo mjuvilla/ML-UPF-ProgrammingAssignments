@@ -1,6 +1,9 @@
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 import argparse
+import time
+import matplotlib.pyplot as plt
+
 
 def load_dataset(filename):
     x_train, y_train = load_svmlight_file(filename)
@@ -24,6 +27,13 @@ def inference(input, w):
 def compute_error(results, y_train):
     return np.mean(np.power(results - y_train, 2))
 
+def plot_bar(weights):
+    plt.bar(range(len(weights)), weights, align='center', alpha=0.5)
+    plt.ylabel('Weight value')
+    plt.xlabel('Feature number')
+    plt.title('Weight vector representation')
+    plt.show()
+
 def main(filename, iterations):
     # inside args, we have the dataset_file attribute, which contains the filename of the selected dataset
     x_train, y_train = load_dataset(filename)
@@ -39,20 +49,27 @@ def main(filename, iterations):
 
         # sample the dataset
         x_sampled, y_sampled = get_subset(num_samples, x_train, y_train)
+        # start time measure
+        t0 = time.time()
         # compute the weights
         w = train(x_sampled, y_sampled)
+        # compute required cpu-time for training
+        t = time.time() - t0
         # inference outputs the results given an input and some weights
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
         error = compute_error(results, y_sampled)
 
-        print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error))
+        print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
+        #print(str(w))
 
-        # TODO: Plot error - num_samples
+        # Plot Weights for an iteration
+        plot_bar(w)
 
-        # TODO: Plot time - num_samples
 
-        # TODO: Plot weights
+     # TODO: Plot error - num_samples
+
+     # TODO: Plot time - num_samples
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

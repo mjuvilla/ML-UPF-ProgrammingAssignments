@@ -2,6 +2,7 @@ from sklearn.datasets import load_svmlight_file
 import numpy as np
 import argparse
 import scipy.optimize
+import time
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
@@ -19,8 +20,9 @@ def get_subset(num_samples, x_train, y_train):
     return x_train[indices], y_train[indices]
 
 def get_cost(w, x, y):
-    # TODO
-    pass
+
+    return np.mean(np.log(1/sigmoid(y * w * x)))
+
 
 def get_gradient(w, x, y):
     return np.mean(sigmoid(np.multiply (-y * w * x, -y * x)))
@@ -52,14 +54,18 @@ def main(filename, iterations):
 
         # sample the dataset
         x_sampled, y_sampled = get_subset(num_samples, x_train, y_train)
+        # start time measure
+        t0 = time.time()
         # compute the weights
         w = train(x_sampled, y_sampled)
+        # compute required cpu-time for training
+        t = time.time() - t0
         # inference outputs the results given an input and some weights
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
         error = compute_error(results, y_sampled)
 
-        print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error))
+        print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
         # TODO: Plot error - num_samples
 
