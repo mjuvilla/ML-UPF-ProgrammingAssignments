@@ -1,7 +1,8 @@
 from sklearn.datasets import load_svmlight_file
+import matplotlib.pyplot as plt
+import scipy.optimize
 import numpy as np
 import argparse
-import scipy.optimize
 import time
 
 def sigmoid(x):
@@ -39,6 +40,30 @@ def compute_error(results, y_train):
     # TODO:
     pass
 
+def plot_w(weights):
+    plt.bar(range(len(weights)), weights, align='center', alpha=0.5)
+    plt.ylabel('Weight value')
+    plt.xlabel('Feature number')
+    plt.title('Weight vector representation')
+    plt.show()
+
+def plot_err(list):
+    plt.plot(*zip(*list))
+    plt.title('Error(#samples)')
+    plt.ylabel('Aproximation Error')
+    plt.xlabel('# of Samples')
+    plt.show()
+
+def plot_t(list):
+    plt.plot(*zip(*list))
+    plt.title('CPU_time(#samples)')
+    plt.ylabel('Required CPU time')
+    plt.xlabel('# of Samples')
+    plt.show()
+
+errorList = []
+timeList = []
+
 def main(filename, iterations):
     # inside args, we have the dataset_file attribute, which contains the filename of the selected dataset
     x_train, y_train = load_dataset(filename)
@@ -56,6 +81,8 @@ def main(filename, iterations):
         x_sampled, y_sampled = get_subset(num_samples, x_train, y_train)
         # start time measure
         t0 = time.time()
+        # append time elapsed into list
+        timeList.append((len(y_sampled), t))
         # compute the weights
         w = train(x_sampled, y_sampled)
         # compute required cpu-time for training
@@ -64,14 +91,19 @@ def main(filename, iterations):
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
         error = compute_error(results, y_sampled)
+        # append error data into list
+        errorList.append((len(y_sampled), error))
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
-        # TODO: Plot error - num_samples
+        # Plot Weights for an iteration
+        #plot_w(w)
 
-        # TODO: Plot time - num_samples
+    # Plot error curve
+    plot_err(errorList)
 
-        # TODO: Plot weights
+    # Plot time curve
+    plot_t(timeList)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
