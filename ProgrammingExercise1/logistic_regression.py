@@ -51,15 +51,17 @@ def plot_w(weights):
     plt.title('Weight vector representation')
     plt.show()
 
-def plot_err(list):
+def plot_err(list, list_mean):
     plt.plot(*zip(*list))
+    plt.plot(*zip(*list_mean))
     plt.title('Error(#samples)')
     plt.ylabel('Aproximation Error')
     plt.xlabel('# of Samples')
     plt.show()
 
-def plot_t(list):
+def plot_t(list, list_mean):
     plt.plot(*zip(*list))
+    plt.plot(*zip(*list_mean))
     plt.title('CPU_time(#samples)')
     plt.ylabel('Required CPU time')
     plt.xlabel('# of Samples')
@@ -67,6 +69,10 @@ def plot_t(list):
 
 errorList = []
 timeList = []
+
+error_mean = []
+t_mean = []
+
 
 def main(filename, iterations):
     # inside args, we have the dataset_file attribute, which contains the filename of the selected dataset
@@ -91,12 +97,16 @@ def main(filename, iterations):
         t = time.time() - t0
         # append time elapsed into list
         timeList.append((len(y_sampled), t))
+        current_mean = np.mean(zip(*timeList)[1])
+        t_mean.append((len(y_sampled), current_mean))
         # inference outputs the results given an input and some weights
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
         error = compute_error(results, y_sampled)
         # append error data into list
         errorList.append((len(y_sampled), error))
+        current_mean = np.mean(zip(*errorList)[1])
+        error_mean.append((len(y_sampled), current_mean))
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
@@ -104,10 +114,10 @@ def main(filename, iterations):
         #plot_w(w)
 
     # Plot error curve
-    plot_err(errorList)
+    plot_err(errorList, error_mean)
 
     # Plot time curve
-    plot_t(timeList)
+    plot_t(timeList, t_mean)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
