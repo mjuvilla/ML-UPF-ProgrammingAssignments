@@ -6,7 +6,7 @@ import argparse
 import time
 
 def sigmoid(x):
-  return 1 / (1 + np.exp(-x))
+    return (1 / (1 + np.exp(-x))) * 2 - 1
 
 def load_dataset(filename):
     x_train, y_train = load_svmlight_file(filename)
@@ -14,31 +14,35 @@ def load_dataset(filename):
     return x_train_dense, y_train
 
 def get_subset(num_samples, x_train, y_train):
-    if num_samples > len(y_train):
+    if num_samples > y_train.shape[0]:
         num_samples = len(y_train)
 
-    indices = np.random.choice(len(y_train), num_samples, replace=False)
+    indices = np.random.choice(y_train.shape[0], num_samples, replace=False)
     return x_train[indices], y_train[indices]
 
 def get_cost(w, x, y):
-
-    return np.mean(np.log(1/sigmoid(y * w * x)))
+    return np.squeeze(np.asarray(np.log(1 / sigmoid(np.multiply(y.transpose() * x, w))).transpose() / len(y)))
 
 
 def get_gradient(w, x, y):
-    return np.mean(sigmoid(np.multiply (-y * w * x, -y * x)))
+    return np.squeeze(
+        np.asarray(np.multiply(sigmoid(np.multiply(-y * x, w.transpose())), (-y * x)).transpose() / len(y)))
 
 def train(x_train, y_train):
-    w0 = np.random.rand(x_train.shape[0], 1)
-    return scipy.optimize.fmin_bfgs(get_cost, w0, get_gradient, args=(x_train, y_train))
+    w0 = np.random.rand(x_train.shape[1])
+    w, cost, info = scipy.optimize.fmin_l_bfgs_b(get_cost, w0, get_gradient, args=(x_train, y_train))
+    return np.array([w, ])
 
 def inference(input, w):
-    # TODO:
-    pass
+    return sigmoid(np.squeeze(np.asarray(input * w.transpose())))
 
 def compute_error(results, y_train):
-    # TODO:
-    pass
+    binarized_results = np.where(results > 0, 1., -1.)
+    errors = 0
+    for idx, label in enumerate(y_train):
+        if label != binarized_results[idx]:
+            errors += 1
+    return errors / float(len(y_train))
 
 def plot_w(weights):
     plt.bar(range(len(weights)), weights, align='center', alpha=0.5)
@@ -69,7 +73,7 @@ def main(filename, iterations):
     x_train, y_train = load_dataset(filename)
 
     # split the dataset in N iterations and take the ceiling (so we don't leave any sample out)
-    samples_per_iteration = int(np.ceil(len(y_train) / float(iterations)))
+    samples_per_iteration = int(np.ceil(x_train.shape[0] / float(iterations)))
 
     for iteration in range(iterations):
         # increment the number of samples for this iteration
@@ -81,12 +85,12 @@ def main(filename, iterations):
         x_sampled, y_sampled = get_subset(num_samples, x_train, y_train)
         # start time measure
         t0 = time.time()
-        # append time elapsed into list
-        timeList.append((len(y_sampled), t))
         # compute the weights
         w = train(x_sampled, y_sampled)
         # compute required cpu-time for training
         t = time.time() - t0
+        # append time elapsed into list
+        timeList.append((len(y_sampled), t))
         # inference outputs the results given an input and some weights
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
