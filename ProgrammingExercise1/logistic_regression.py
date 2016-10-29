@@ -6,10 +6,7 @@ import scipy.optimize
 import numpy as np
 import argparse
 import time
-
-
-def sigmoid(x):
-    return (1 / (1 + np.exp(-x))) * 2 - 1
+from sklearn import linear_model
 
 def load_dataset(filename):
     x_train, y_train = load_svmlight_file(filename)
@@ -23,30 +20,11 @@ def get_subset(num_samples, x_train, y_train):
     indices = np.random.choice(y_train.shape[0], num_samples, replace=False)
     return x_train[indices], y_train[indices]
 
-def get_cost(w, x, y):
-    return np.squeeze(np.asarray(np.log(1 / sigmoid(np.multiply(y.transpose() * x, w))).transpose() / len(y)))
-
-
-def get_gradient(w, x, y):
-    return np.squeeze(
-        np.asarray(np.multiply(sigmoid(np.multiply(-y * x, w.transpose())), (-y * x)).transpose() / len(y)))
-
 def train(x_train, y_train):
-    w0 = np.random.rand(x_train.shape[1])
-    w, cost, info = scipy.optimize.fmin_l_bfgs_b(get_cost, w0, get_gradient, args=(x_train, y_train))
-    return np.array([w, ])
+    return linear_model.LogisticRegression(C=1e5).fit(x_train, y_train)
 
-def inference(input, w):
-    return sigmoid(np.squeeze(np.asarray(input * w.transpose())))
-
-def compute_error(results, y_train):
-    binarized_results = np.where(results > 0, 1., -1.)
-    errors = 0
-    for idx, label in enumerate(y_train):
-        if label != binarized_results[idx]:
-            errors += 1
-    return errors / float(len(y_train))
-
+def compute_error(model, x, y):
+    return model.score(x, y)
 
 def plot_w(weights):
     plt.bar(range(len(weights)), weights, align='center', alpha=0.5)
@@ -107,7 +85,7 @@ def main(filename, iterations):
         # start time measure
         t0 = time.time()
         # compute the weights
-        w = train(x_sampled, y_sampled)
+        model = train(x_sampled, y_sampled)
         # compute required cpu-time for training
         t = time.time() - t0
         # append time elapsed into list
@@ -116,10 +94,8 @@ def main(filename, iterations):
         current_median = np.median(zip(*timeList)[1])
         t_mean.append((len(y_sampled), current_mean))
         t_median.append((len(y_sampled),current_median))
-        # inference outputs the results given an input and some weights
-        results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
-        error = compute_error(results, y_sampled)
+        error = 1 - compute_error(model, x_sampled, y_sampled)
         # append error data into list
         errorList.append((len(y_sampled), error))
         current_mean = np.mean(zip(*errorList)[1])
@@ -128,6 +104,9 @@ def main(filename, iterations):
         error_median.append((len(y_sampled),current_median))
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
+
+        if len(y_sampled) == x_train.shape[0]:
+            break
 
         # Plot Weights for an iteration
         #plot_w(w)
@@ -147,6 +126,3 @@ if __name__ == "__main__":
     # parse_args() puts all the function arguments into the "args" object
     args = parser.parse_args()
     main(args.dataset_file, args.iterations)
-
-
-
