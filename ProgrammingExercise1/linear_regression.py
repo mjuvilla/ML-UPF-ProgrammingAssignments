@@ -1,5 +1,6 @@
 from sklearn.datasets import load_svmlight_file
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import argparse
 import time
@@ -34,22 +35,38 @@ def plot_w(weights):
     plt.title('Weight vector representation')
     plt.show()
 
-def plot_err(list):
+def plot_err(list,list_mean,list_median):
     plt.plot(*zip(*list))
-    plt.title('Error(#samples)')
+    plt.plot(*zip(*list_mean))
+    plt.plot(*zip(*list_median))
+    plt.title('Error(#samples) in LinReg')
     plt.ylabel('Aproximation Error')
     plt.xlabel('# of Samples')
+    red_label = mpatches.Patch(color='red', label='median')
+    green_label = mpatches.Patch(color='green', label='mean')
+    plt.legend(handles=[green_label,red_label])
     plt.show()
 
-def plot_t(list):
+def plot_t(list,list_mean,list_median):
     plt.plot(*zip(*list))
-    plt.title('CPU_time(#samples)')
+    plt.plot(*zip(*list_mean))
+    plt.plot(*zip(*list_median))
+    plt.title('CPU_time(#samples) in LinReg')
     plt.ylabel('Required CPU time')
     plt.xlabel('# of Samples')
+    red_label = mpatches.Patch(color='red', label='median')
+    green_label = mpatches.Patch(color='green', label='mean')
+    plt.legend(handles=[green_label, red_label])
     plt.show()
 
 errorList = []
 timeList = []
+
+error_mean = []
+t_mean = []
+
+error_median = []
+t_median = []
 
 def main(filename, iterations):
     # inside args, we have the dataset_file attribute, which contains the filename of the selected dataset
@@ -74,12 +91,20 @@ def main(filename, iterations):
         t = time.time() - t0
         # append time elapsed into list
         timeList.append((len(y_sampled), t))
+        current_mean = np.mean(zip(*timeList)[1])
+        current_median = np.median(zip(*timeList)[1])
+        t_mean.append((len(y_sampled), current_mean))
+        t_median.append((len(y_sampled),current_median))
         # inference outputs the results given an input and some weights
         results = inference(x_sampled, w)
         # compute the error given the results and the ground truth
         error = compute_error(results, y_sampled)
         # append error data into list
         errorList.append((len(y_sampled), error))
+        current_mean = np.mean(zip(*errorList)[1])
+        current_median = np.median(zip(*errorList)[1])
+        error_mean.append((len(y_sampled), current_mean))
+        error_median.append((len(y_sampled),current_median))
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
@@ -87,10 +112,10 @@ def main(filename, iterations):
         #plot_w(w)
 
     # Plot error curve
-    plot_err(errorList)
+    plot_err(errorList,error_mean,error_median)
 
     # Plot time curve
-    plot_t(timeList)
+    plot_t(timeList,t_mean,t_median)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
