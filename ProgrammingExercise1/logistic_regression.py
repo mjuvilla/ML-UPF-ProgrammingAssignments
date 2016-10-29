@@ -106,7 +106,7 @@ def main(filename, iterations):
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
         # Plot Weights for an iteration
-        # plot_w(np.squeeze(np.asarray(model.coef_[:])))
+        #plot_w(np.asarray(model.coef_[:]).transpose())
 
         if len(y_sampled) == x_train.shape[0]:
             break
