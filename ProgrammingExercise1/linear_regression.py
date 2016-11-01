@@ -109,9 +109,13 @@ def main(filename, iterations):
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
         # Plot Weights for an iteration
-        #plot_w(w)
+        if iteration % int((iterations-1) / 2.) == 0 and iteration != 0:
+            plot_w(w)
 
-    # Plot error curve
+        if len(y_sampled) == x_train.shape[0]:
+            break
+
+        # Plot error curve
     plot_err(errorList,error_mean,error_median)
 
     # Plot time curve
