@@ -124,7 +124,7 @@ def main(filename, iterations):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # the script has two arguments, --dataset_file and --iterations
-    # usage: python linear_regression.py --dataset_file datasets/housing_scale_little_regression --iterations 10
+    # usage: python linear_regression.py --dataset_file datasets/housing_scale_little_regression --iterations 100
     parser.add_argument("--dataset_file", dest="dataset_file")
     parser.add_argument("--iterations", dest="iterations", type=int)
     # parse_args() puts all the function arguments into the "args" object
