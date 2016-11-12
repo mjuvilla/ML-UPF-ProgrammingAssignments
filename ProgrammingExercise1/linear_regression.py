@@ -108,7 +108,7 @@ def main(filename, iterations):
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
-        # Plot Weights for an iteration
+        # Plot weights in two iterations
         if iteration % int((iterations-1) / 2.) == 0 and iteration != 0:
             plot_w(w)
 

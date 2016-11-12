@@ -105,7 +105,7 @@ def main(filename, iterations):
 
         print("Num samples: " + str(len(y_sampled)) + ", Error: " + str(error) + ",Time: " + str(t))
 
-        # Plot Weights for an iteration
+        # Plot weights in two iterations
         if iteration % int((iterations - 1) / 2.) == 0 and iteration != 0:
             plot_w(np.asarray(model.coef_[:]).transpose())
 
@@ -121,7 +121,7 @@ def main(filename, iterations):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # the script has two arguments, --dataset_file and --iterations
-    # usage: python linear_regression.py --dataset_file datasets/housing_scale_little_regression --iterations 100
+    # usage: python logistic_regression.py --dataset_file datasets/sonar_scale_little_classification --iterations 100
     parser.add_argument("--dataset_file", dest="dataset_file")
     parser.add_argument("--iterations", dest="iterations", type=int)
     # parse_args() puts all the function arguments into the "args" object
