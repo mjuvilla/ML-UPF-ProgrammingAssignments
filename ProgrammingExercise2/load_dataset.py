@@ -4,8 +4,8 @@ import numpy as np
 def load_dataset(filename):
     x, y = load_svmlight_file(filename)
     x_dense = x.todense()
-    y_matrix = np.matrix(y).transpose()
-    return x_dense, y_matrix
+    #y_matrix = np.matrix(y).transpose()
+    return x_dense, y
 
 def get_datasets(filename):
     X, Y = load_dataset(filename)
