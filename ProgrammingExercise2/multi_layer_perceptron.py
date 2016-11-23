@@ -8,7 +8,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 #Load dataset
-x,y = load_dataset("data/mushrooms.txt")
+x,y = load_dataset("data/segment.txt")
 
 #Declare error lists
 error_trainList = []
@@ -29,7 +29,7 @@ def plot_err(list_train,list_validation):
     plt.show()
 
 #Scores
-for c_alpha in np.logspace(-4,2,5):
+for c_alpha in np.logspace(-4,2,10):
     print "testing " + str(c_alpha)
     #Declare Multi-Layer-Perceptron classifier with L-2 Regularization (Weight-decay penalty)
     mlpclassifier = MLPClassifier(activation="logistic", alpha=c_alpha)
@@ -41,7 +41,7 @@ for c_alpha in np.logspace(-4,2,5):
     #Perform prediction and compute mean of all val/train errors in all partitions
     for train, validation in kf.split(x):
         x_train, x_validation, y_train, y_validation = x[train], x[validation], y[train], y[validation]
-        mlpclassifier.fit(x_train, y_train)
+        mlpclassifier = mlpclassifier.fit(x_train, y_train)
         train_scores.append(mlpclassifier.score(x_train, y_train))
         validation_scores.append(mlpclassifier.score(x_validation, y_validation))
 
@@ -50,7 +50,7 @@ for c_alpha in np.logspace(-4,2,5):
     error_validationList.append((c_alpha, 1 - np.mean(validation_scores)))
 
 
-
+#Plot figures
 plot_err(error_trainList,error_validationList)
 
 
